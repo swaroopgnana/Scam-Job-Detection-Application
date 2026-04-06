@@ -1,5 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import API from "../services/api";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
@@ -20,20 +19,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
   };
-
-  const fetchProfile = async () => {
-    try {
-      const { data } = await API.get("/auth/me");
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-    } catch {
-      logout();
-    }
-  };
-
-  useEffect(() => {
-    if (token) fetchProfile();
-  }, [token]);
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout }}>

@@ -29,7 +29,6 @@ a {
   border: 1px solid rgba(255,255,255,0.15);
   padding: 35px;
   border-radius: 22px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 
 .auth-card h2 {
@@ -43,21 +42,17 @@ a {
   padding: 16px;
   margin-bottom: 18px;
   border: none;
-  outline: none;
   border-radius: 8px;
   background: #21283a;
   color: #fff;
-  font-size: 1rem;
 }
 
-.gradient-btn, .green-btn, .light-btn, .dark-btn {
+.gradient-btn, .green-btn {
   width: 100%;
   padding: 14px;
   border: none;
   border-radius: 8px;
-  font-size: 1.1rem;
   cursor: pointer;
-  margin-top: 10px;
 }
 
 .gradient-btn {
@@ -70,28 +65,14 @@ a {
   color: white;
 }
 
-.light-btn {
-  background: #eceef3;
-  color: #111827;
-}
-
-.dark-btn {
-  background: #121a2d;
-  color: #fff;
+.error-text {
+  color: #ff6b6b;
+  margin-bottom: 12px;
 }
 
 .auth-switch {
   margin-top: 18px;
   text-align: center;
-}
-
-.auth-switch a {
-  color: #67a3ff;
-}
-
-.error-text {
-  color: #ff6b6b;
-  margin-bottom: 14px;
 }
 
 .dashboard-container {
@@ -102,7 +83,6 @@ a {
 .sidebar {
   width: 255px;
   background: linear-gradient(180deg, rgba(37,42,55,0.96), rgba(31,36,49,0.97));
-  border-right: 1px solid rgba(255,255,255,0.08);
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
@@ -129,7 +109,6 @@ a {
   align-items: center;
   gap: 12px;
   color: #fff;
-  font-size: 1.15rem;
 }
 
 .nav-item.active {
@@ -139,14 +118,8 @@ a {
 .logout-btn {
   background: #e92525;
   color: white;
-  border: none;
   padding: 16px;
   border-radius: 14px;
-  font-size: 1.1rem;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
 }
 
@@ -161,11 +134,14 @@ a {
   margin-bottom: 22px;
 }
 
-.analyze-box {
-  background: rgba(44, 49, 63, 0.9);
+.analyze-box, .chart-card, .content-card, .history-card {
+  background: rgba(43, 47, 58, 0.94);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 22px;
-  padding: 26px;
+  padding: 24px;
+}
+
+.analyze-box {
   margin-bottom: 30px;
 }
 
@@ -179,11 +155,10 @@ a {
   background: #283042;
   color: white;
   margin-bottom: 18px;
-  font-size: 1.1rem;
 }
 
 .small-btn {
-  width: 180px;
+  width: 220px;
 }
 
 .analytics-grid {
@@ -192,32 +167,10 @@ a {
   gap: 24px;
 }
 
-.chart-card, .feature-card, .history-card, .content-card, .pricing-card {
-  background: rgba(43, 47, 58, 0.94);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 22px;
-  padding: 24px;
-}
-
-.chart-card h2 {
-  margin-bottom: 16px;
-}
-
 .chart-wrap {
   width: 100%;
-  max-width: 340px;
+  max-width: 360px;
   margin: auto;
-}
-
-.chart-card h3 {
-  text-align: center;
-  margin-top: 18px;
-  font-size: 2rem;
-}
-
-.chart-card p {
-  text-align: center;
-  color: #d4d8e3;
 }
 
 .reason-list {
@@ -225,148 +178,36 @@ a {
   padding-left: 20px;
 }
 
-.content-card.large-card {
-  background: #f9f9fb;
-  color: #111827;
-  border-radius: 24px;
-}
-
-.content-card.large-card p,
-.content-card.large-card h2,
-.content-card.large-card h3,
-.content-card.large-card h4 {
-  color: #111827;
-}
-
-.section-subtitle {
-  margin-top: 28px;
-  margin-bottom: 12px;
-}
-
-.info-grid.two-col,
-.feature-grid,
-.pricing-grid {
-  display: grid;
-  gap: 18px;
-  margin-top: 24px;
-}
-
-.info-grid.two-col {
-  grid-template-columns: 1fr 1fr;
-}
-
-.dark-mini-card {
-  background: linear-gradient(135deg, #334155, #1e293b);
-  color: white;
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.bottom-note,
-.footer-note {
-  text-align: center;
-  margin-top: 30px;
-  color: #9ca3af;
-}
-
-.center-heading {
-  text-align: center;
-  margin: 20px 0 30px;
-}
-
-.center-heading h1 {
-  font-size: 3.2rem;
-  margin-bottom: 10px;
-}
-
-.feature-grid {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.feature-card {
-  background: #f9fafb;
-  color: #111827;
-  min-height: 160px;
-}
-
-.feature-card p,
-.feature-card h3 {
-  color: #111827;
-}
-
-.pricing-grid {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.pricing-card {
-  background: #fbfbfc;
-  color: #111827;
-  min-height: 420px;
-}
-
-.pricing-card h1,
-.pricing-card h2,
-.pricing-card p,
-.pricing-card li,
-.popular-tag {
-  color: #111827;
-}
-
-.pricing-card ul {
-  margin: 18px 0;
-  padding-left: 20px;
-}
-
-.popular {
-  transform: translateY(-6px);
-}
-
-.popular-tag {
-  display: inline-block;
-  margin-bottom: 10px;
-}
-
-.page-heading {
-  margin-bottom: 20px;
-}
-
 .history-list {
   display: grid;
   gap: 18px;
 }
 
-.empty-card {
-  background: rgba(43, 47, 58, 0.94);
-  padding: 30px;
-  border-radius: 20px;
-}
-
 @media (max-width: 992px) {
-  .analytics-grid,
-  .feature-grid,
-  .pricing-grid,
-  .info-grid.two-col {
+  .analytics-grid {
     grid-template-columns: 1fr;
   }
+}
 
-  .sidebar {
-    width: 90px;
-  }
+.history-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
 
-  .logo {
-    font-size: 1.2rem;
-  }
+.delete-btn {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
 
-  .nav-item {
-    font-size: 0.9rem;
-    justify-content: center;
-  }
-
-  .nav-item svg, .logout-btn svg {
-    margin: 0;
-  }
-
-  .nav-item {
-    gap: 6px;
-  }
+.delete-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

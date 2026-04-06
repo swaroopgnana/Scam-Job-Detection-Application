@@ -1,15 +1,15 @@
 {
   "name": "job-scam-backend",
   "version": "1.0.0",
-  "description": "Backend for Job Scam Detection System",
+  "description": "Backend for Job Scam Detector",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "server": "nodemon server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

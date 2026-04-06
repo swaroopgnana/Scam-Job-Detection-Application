@@ -22,6 +22,20 @@ const historySchema = new mongoose.Schema(
     reasons: {
       type: [String],
       default: []
+    },
+    safePercent: {
+      type: Number,
+      default: 0
+    },
+    riskPercent: {
+      type: Number,
+      default: 0
+    },
+    signals: {
+      suspiciousLanguage: { type: Number, default: 0 },
+      paymentRequest: { type: Number, default: 0 },
+      contactRisk: { type: Number, default: 0 },
+      companyTrust: { type: Number, default: 0 }
     }
   },
   { timestamps: true }

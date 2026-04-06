@@ -1,35 +1,50 @@
 import { useState } from "react";
 import Layout from "../components/Layout";
 import API from "../services/api";
-import { Doughnut, Line } from "react-chartjs-2";
+import { Doughnut, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   ArcElement,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Tooltip,
   Legend
 } from "chart.js";
-import { victimGrowthData } from "../data";
 
-ChartJS.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
+ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const Analyze = () => {
   const [jobText, setJobText] = useState("");
-  const [riskScore, setRiskScore] = useState(39);
-  const [verdict, setVerdict] = useState("Low Risk");
-  const [reasons, setReasons] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState({
+    riskScore: 0,
+    verdict: "Not analyzed",
+    reasons: [],
+    safePercent: 100,
+    riskPercent: 0,
+    signals: {
+      suspiciousLanguage: 0,
+      paymentRequest: 0,
+      contactRisk: 0,
+      companyTrust: 0
+    }
+  });
 
   const handleAnalyze = async () => {
+    if (!jobText.trim()) {
+      alert("Please paste a job description first.");
+      return;
+    }
+
     try {
+      setLoading(true);
       const { data } = await API.post("/analyze", { jobText });
-      setRiskScore(data.analysis.riskScore);
-      setVerdict(data.analysis.verdict);
-      setReasons(data.analysis.reasons);
+      setResult(data.analysis);
     } catch (error) {
-      console.error(error);
+      alert(error.response?.data?.message || "Analysis failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,22 +52,24 @@ const Analyze = () => {
     labels: ["Safe", "Risk"],
     datasets: [
       {
-        data: [100 - riskScore, riskScore],
-        backgroundColor: ["#52d017", "#ff4d4d"],
-        borderColor: ["#52d017", "#ff4d4d"]
+        data: [result.safePercent || 0, result.riskPercent || 0],
+        backgroundColor: ["#52d017", "#ff4d4d"]
       }
     ]
   };
 
-  const lineData = {
-    labels: ["2020", "2021", "2022", "2023", "2024"],
+  const barData = {
+    labels: ["Suspicious Language", "Payment Request", "Contact Risk", "Company Trust"],
     datasets: [
       {
-        label: "Victim Growth",
-        data: victimGrowthData,
-        borderColor: "#8a5cff",
-        backgroundColor: "#8a5cff",
-        tension: 0.4
+        label: "Signal Score",
+        data: [
+          result.signals?.suspiciousLanguage || 0,
+          result.signals?.paymentRequest || 0,
+          result.signals?.contactRisk || 0,
+          result.signals?.companyTrust || 0
+        ],
+        backgroundColor: ["#8b5cf6", "#ef4444", "#f59e0b", "#22c55e"]
       }
     ]
   };
@@ -67,8 +84,8 @@ const Analyze = () => {
           value={jobText}
           onChange={(e) => setJobText(e.target.value)}
         />
-        <button className="gradient-btn small-btn" onClick={handleAnalyze}>
-          Analyze with AI
+        <button className="gradient-btn small-btn" onClick={handleAnalyze} disabled={loading}>
+          {loading ? "Analyzing..." : "Analyze with Gemini"}
         </button>
       </div>
 
@@ -78,19 +95,22 @@ const Analyze = () => {
           <div className="chart-wrap">
             <Doughnut data={doughnutData} />
           </div>
-          <h3>{riskScore}% Risk</h3>
-          <p>{verdict}</p>
-          {reasons.length > 0 && (
+          <h3>{result.riskScore}% Risk</h3>
+          <p>{result.verdict}</p>
+
+          {result.reasons?.length > 0 && (
             <ul className="reason-list">
-              {reasons.map((reason, index) => <li key={index}>{reason}</li>)}
+              {result.reasons.map((reason, index) => (
+                <li key={index}>{reason}</li>
+              ))}
             </ul>
           )}
         </div>
 
         <div className="chart-card">
-          <h2>Victim Growth</h2>
+          <h2>Gemini Signal Breakdown</h2>
           <div className="chart-wrap">
-            <Line data={lineData} />
+            <Bar data={barData} />
           </div>
         </div>
       </div>

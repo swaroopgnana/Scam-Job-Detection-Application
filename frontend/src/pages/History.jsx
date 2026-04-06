@@ -4,6 +4,7 @@ import API from "../services/api";
 
 const History = () => {
   const [history, setHistory] = useState([]);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -11,11 +12,30 @@ const History = () => {
         const { data } = await API.get("/history");
         setHistory(data);
       } catch (error) {
-        console.error(error);
+        console.error("Fetch history error:", error.response?.data || error.message);
       }
     };
+
     fetchHistory();
   }, []);
+
+  const handleDelete = async (id) => {
+    const ok = window.confirm("Are you sure you want to delete this item?");
+    if (!ok) return;
+
+    try {
+      setDeletingId(id);
+      const res = await API.delete(`/history/${id}`);
+      console.log("Delete success:", res.data);
+
+      setHistory((prev) => prev.filter((item) => item._id !== id));
+    } catch (error) {
+      console.error("Delete failed:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Delete failed");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <Layout>
@@ -27,7 +47,17 @@ const History = () => {
         {history.length > 0 ? (
           history.map((item) => (
             <div className="history-card" key={item._id}>
-              <h3>{item.verdict}</h3>
+              <div className="history-card-top">
+                <h3>{item.verdict}</h3>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDelete(item._id)}
+                  disabled={deletingId === item._id}
+                >
+                  {deletingId === item._id ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+
               <p><strong>Risk Score:</strong> {item.riskScore}%</p>
               <p><strong>Job Description:</strong> {item.jobText}</p>
               <p><strong>Reasons:</strong> {item.reasons.join(", ") || "No strong scam indicators found"}</p>
