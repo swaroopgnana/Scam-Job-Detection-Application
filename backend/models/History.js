@@ -23,6 +23,10 @@ const historySchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    summary: {
+      type: String,
+      default: ""
+    },
     safePercent: {
       type: Number,
       default: 0
@@ -36,6 +40,17 @@ const historySchema = new mongoose.Schema(
       paymentRequest: { type: Number, default: 0 },
       contactRisk: { type: Number, default: 0 },
       companyTrust: { type: Number, default: 0 }
+    },
+    evidence: {
+      type: [
+        {
+          title: { type: String, default: "" },
+          detail: { type: String, default: "" },
+          excerpt: { type: String, default: "" },
+          impact: { type: String, default: "" }
+        }
+      ],
+      default: []
     }
   },
   { timestamps: true }

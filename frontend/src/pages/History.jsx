@@ -59,8 +59,19 @@ const History = () => {
               </div>
 
               <p><strong>Risk Score:</strong> {item.riskScore}%</p>
+              {item.summary && <p><strong>Summary:</strong> {item.summary}</p>}
               <p><strong>Job Description:</strong> {item.jobText}</p>
               <p><strong>Reasons:</strong> {item.reasons.join(", ") || "No strong scam indicators found"}</p>
+              {item.evidence?.length > 0 && (
+                <div className="history-evidence">
+                  {item.evidence.map((evidenceItem, index) => (
+                    <div className="history-evidence-item" key={`${evidenceItem.title}-${index}`}>
+                      <strong>{evidenceItem.title || `Signal ${index + 1}`}</strong>
+                      <span>{evidenceItem.detail}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <small>{new Date(item.createdAt).toLocaleString()}</small>
             </div>
           ))

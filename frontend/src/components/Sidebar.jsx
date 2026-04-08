@@ -3,26 +3,27 @@ import { FaInfoCircle, FaStar, FaHistory, FaCreditCard, FaSignOutAlt, FaHome } f
 import { useAuth } from "../context/AuthContext";
 import ThemeToggle from "./ThemeToggle";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen = false, onNavigate = () => {} }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+    onNavigate();
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
       <div>
-        <h1 className="logo">ScamAI</h1>
+        <h1 className="logo">JobLens</h1>
         <ThemeToggle className="sidebar-theme-toggle" />
         <nav className="nav-menu">
-          <NavLink to="/analyze" className="nav-item"><FaHome /> Analyze</NavLink>
-          <NavLink to="/about" className="nav-item"><FaInfoCircle /> About</NavLink>
-          <NavLink to="/features" className="nav-item"><FaStar /> Features</NavLink>
-          <NavLink to="/history" className="nav-item"><FaHistory /> History</NavLink>
-          <NavLink to="/subscription" className="nav-item"><FaCreditCard /> Subscription</NavLink>
+          <NavLink to="/analyze" className="nav-item" onClick={onNavigate}><FaHome /> Analyze</NavLink>
+          <NavLink to="/about" className="nav-item" onClick={onNavigate}><FaInfoCircle /> About</NavLink>
+          <NavLink to="/features" className="nav-item" onClick={onNavigate}><FaStar /> Features</NavLink>
+          <NavLink to="/history" className="nav-item" onClick={onNavigate}><FaHistory /> History</NavLink>
+          <NavLink to="/subscription" className="nav-item" onClick={onNavigate}><FaCreditCard /> Subscription</NavLink>
         </nav>
       </div>
 

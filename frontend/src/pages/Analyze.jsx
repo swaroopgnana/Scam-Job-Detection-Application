@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Layout from "../components/Layout";
 import API from "../services/api";
+import { useTheme } from "../context/ThemeContext";
 import { Doughnut, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -15,12 +16,15 @@ import {
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const Analyze = () => {
+  const { isDark } = useTheme();
   const [jobText, setJobText] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState({
     riskScore: 0,
     verdict: "Not analyzed",
+    summary: "",
     reasons: [],
+    evidence: [],
     safePercent: 100,
     riskPercent: 0,
     signals: {
@@ -49,13 +53,18 @@ const Analyze = () => {
     }
   };
 
+  const axisColor = isDark ? "rgba(199, 210, 254, 0.72)" : "rgba(49, 71, 101, 0.88)";
+  const gridColor = isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(25, 45, 80, 0.08)";
+  const chartBorder = isDark ? "#20293a" : "#ffffff";
+
   const doughnutData = {
     labels: ["Safe", "Risk"],
     datasets: [
       {
         data: [result.safePercent || 0, result.riskPercent || 0],
         backgroundColor: ["#52d017", "#ff4d4d"],
-        borderWidth: 1
+        borderColor: chartBorder,
+        borderWidth: 2
       }
     ]
   };
@@ -76,9 +85,60 @@ const Analyze = () => {
     ]
   };
 
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: axisColor
+        }
+      }
+    }
+  };
+
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: axisColor
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: axisColor
+        },
+        grid: {
+          color: gridColor
+        }
+      },
+      y: {
+        beginAtZero: true,
+        max: 100,
+        ticks: {
+          color: axisColor
+        },
+        grid: {
+          color: gridColor
+        }
+      }
+    }
+  };
+
   return (
     <Layout>
-      <h1 className="main-title">AI Scam Job Detector</h1>
+      <section className="page-hero">
+        <p className="eyebrow">Analyze Listings</p>
+        <h1 className="main-title">Review a job post before you trust it.</h1>
+        <p className="page-lead">
+          Paste the full role description and JobLens will score the risk level, show the main warning signals,
+          and explain what in the text affected the final percentage.
+        </p>
+      </section>
 
       <div className="analyze-box">
         <textarea
@@ -95,10 +155,17 @@ const Analyze = () => {
         <div className="chart-card">
           <h2>Risk Analysis</h2>
           <div className="chart-wrap">
-            <Doughnut data={doughnutData} />
+            <Doughnut data={doughnutData} options={doughnutOptions} />
           </div>
-          <h3>{result.riskScore}% Risk</h3>
-          <p>{result.verdict}</p>
+          <div className="score-row">
+            <div>
+              <h3>{result.riskScore}% Risk</h3>
+              <p className="score-verdict">{result.verdict}</p>
+            </div>
+            <div className="score-pill">{result.safePercent}% Safe Signals</div>
+          </div>
+
+          {result.summary && <p className="analysis-summary">{result.summary}</p>}
 
           {result.reasons?.length > 0 && (
             <ul className="reason-list">
@@ -110,12 +177,38 @@ const Analyze = () => {
         </div>
 
         <div className="chart-card">
-          <h2>AI Signal Breakdown</h2>
+          <h2>Signal Breakdown</h2>
           <div className="chart-wrap">
-            <Bar data={barData} />
+            <Bar data={barData} options={barOptions} />
           </div>
         </div>
       </div>
+
+      <section className="evidence-section">
+        <div className="section-heading">
+          <h2>Why this score was assigned</h2>
+          <p>The cards below explain which parts of the posting affected the final risk percentage.</p>
+        </div>
+
+        <div className="evidence-grid">
+          {result.evidence?.length > 0 ? (
+            result.evidence.map((item, index) => (
+              <article className="content-card evidence-card" key={`${item.title}-${index}`}>
+                <div className="evidence-top">
+                  <h3>{item.title || `Signal ${index + 1}`}</h3>
+                  {item.impact && <span className="impact-badge">{item.impact}</span>}
+                </div>
+                {item.detail && <p>{item.detail}</p>}
+                {item.excerpt && <div className="excerpt-box">"{item.excerpt}"</div>}
+              </article>
+            ))
+          ) : (
+            <div className="empty-card">
+              Run an analysis to see the evidence behind the score and the strongest warning signals in the job text.
+            </div>
+          )}
+        </div>
+      </section>
     </Layout>
   );
 };

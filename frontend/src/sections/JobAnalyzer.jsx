@@ -74,7 +74,7 @@ export default function JobAnalyzer() {
       {result && (
         <div className="glass p-6 rounded-2xl mt-6">
 
-          <h2 className="text-xl mb-3">AI Analysis</h2>
+          <h2 className="text-xl mb-3">Analysis</h2>
 
           {/* ✅ Verdict */}
           <p>
