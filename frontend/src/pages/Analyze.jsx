@@ -42,6 +42,7 @@ const Analyze = () => {
       const { data } = await API.post("/analyze", { jobText });
       setResult(data.analysis);
     } catch (error) {
+      console.error(error);
       alert(error.response?.data?.message || "Analysis failed");
     } finally {
       setLoading(false);
@@ -53,7 +54,8 @@ const Analyze = () => {
     datasets: [
       {
         data: [result.safePercent || 0, result.riskPercent || 0],
-        backgroundColor: ["#52d017", "#ff4d4d"]
+        backgroundColor: ["#52d017", "#ff4d4d"],
+        borderWidth: 1
       }
     ]
   };
@@ -85,7 +87,7 @@ const Analyze = () => {
           onChange={(e) => setJobText(e.target.value)}
         />
         <button className="gradient-btn small-btn" onClick={handleAnalyze} disabled={loading}>
-          {loading ? "Analyzing..." : "Analyze with Gemini"}
+          {loading ? "Analyzing..." : "Analyze with AI"}
         </button>
       </div>
 
@@ -108,7 +110,7 @@ const Analyze = () => {
         </div>
 
         <div className="chart-card">
-          <h2>Gemini Signal Breakdown</h2>
+          <h2>AI Signal Breakdown</h2>
           <div className="chart-wrap">
             <Bar data={barData} />
           </div>

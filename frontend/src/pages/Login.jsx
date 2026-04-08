@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import ThemeToggle from "../components/ThemeToggle";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -28,6 +29,9 @@ const Login = () => {
 
   return (
     <div className="auth-page">
+      <div className="auth-theme-toggle">
+        <ThemeToggle />
+      </div>
       <form className="auth-card" onSubmit={handleSubmit}>
         <h2>Welcome Back</h2>
         {error && <p className="error-text">{error}</p>}

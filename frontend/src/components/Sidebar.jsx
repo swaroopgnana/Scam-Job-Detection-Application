@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { FaInfoCircle, FaStar, FaHistory, FaCreditCard, FaSignOutAlt, FaHome } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import ThemeToggle from "./ThemeToggle";
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -15,6 +16,7 @@ const Sidebar = () => {
     <aside className="sidebar">
       <div>
         <h1 className="logo">ScamAI</h1>
+        <ThemeToggle className="sidebar-theme-toggle" />
         <nav className="nav-menu">
           <NavLink to="/analyze" className="nav-item"><FaHome /> Analyze</NavLink>
           <NavLink to="/about" className="nav-item"><FaInfoCircle /> About</NavLink>

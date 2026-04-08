@@ -1,62 +1,118 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import History from "../models/History.js";
+import OpenAI from "openai";
 
-const detectRisk = (jobText) => {
-  const text = jobText.toLowerCase();
-  let score = 10;
-  const reasons = [];
+const apiKey = process.env.OPENROUTER_API_KEY;
 
-  const flags = [
-    { keyword: "registration fee", score: 20, reason: "Asks for registration fee" },
-    { keyword: "pay upfront", score: 20, reason: "Requests upfront payment" },
-    { keyword: "work from home", score: 10, reason: "Suspicious generic remote offer" },
-    { keyword: "urgent hiring", score: 10, reason: "Pressure-based language used" },
-    { keyword: "no experience", score: 8, reason: "Too-good-to-be-true low qualification claim" },
-    { keyword: "whatsapp only", score: 15, reason: "Unprofessional recruiter communication" },
-    { keyword: "telegram", score: 15, reason: "Recruitment shifted to messaging apps" },
-    { keyword: "guaranteed income", score: 18, reason: "Unrealistic earnings claim" },
-    { keyword: "limited seats", score: 8, reason: "Scarcity pressure tactic" },
-    { keyword: "investment", score: 15, reason: "Mentions money investment for job" }
-  ];
+if (!apiKey) {
+  console.error("OPENROUTER_API_KEY is missing. Check your backend .env file.");
+}
 
-  flags.forEach((item) => {
-    if (text.includes(item.keyword)) {
-      score += item.score;
-      reasons.push(item.reason);
-    }
-  });
+const client = new OpenAI({
+  apiKey,
+  baseURL: "https://openrouter.ai/api/v1",
+  defaultHeaders: {
+    "HTTP-Referer": "http://localhost:5000",
+    "X-Title": "Job Scam Detector"
+  }
+});
 
-  if (score > 100) score = 100;
-
-  let verdict = "Low Risk";
-  if (score >= 70) verdict = "High Risk";
-  else if (score >= 40) verdict = "Medium Risk";
-
-  return { score, verdict, reasons };
-};
+function extractJson(text) {
+  const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+  return JSON.parse(cleaned);
+}
 
 export const analyzeJob = async (req, res) => {
   try {
     const { jobText } = req.body;
 
-    if (!jobText) {
-      return res.status(400).json({ message: "Job description is required" });
+    if (!apiKey) {
+      return res.status(500).json({
+        message: "OPENROUTER_API_KEY is missing in backend .env"
+      });
     }
 
-    const result = detectRisk(jobText);
+    if (!jobText || !jobText.trim()) {
+      return res.status(400).json({
+        message: "Job description is required"
+      });
+    }
+
+    const prompt = `
+You are a job scam detection assistant.
+
+Analyze the following job description and return ONLY valid JSON in this exact format:
+{
+  "riskScore": number,
+  "verdict": "Low Risk" | "Medium Risk" | "High Risk",
+  "reasons": ["reason1", "reason2"],
+  "safePercent": number,
+  "riskPercent": number,
+  "signals": {
+    "suspiciousLanguage": number,
+    "paymentRequest": number,
+    "contactRisk": number,
+    "companyTrust": number
+  }
+}
+
+Rules:
+- riskScore must be between 0 and 100
+- safePercent + riskPercent must equal 100
+- all signal values must be between 0 and 100
+- return raw JSON only
+- no markdown
+- no explanation
+
+Job Description:
+${jobText}
+`;
+
+    const completion = await client.chat.completions.create({
+      model: "openai/gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are a job scam detection assistant. Return only valid JSON."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.2
+    });
+
+    const text = completion.choices?.[0]?.message?.content || "";
+    const parsed = extractJson(text);
 
     const history = await History.create({
       user: req.user.id,
       jobText,
-      riskScore: result.score,
-      verdict: result.verdict,
-      reasons: result.reasons
+      riskScore: parsed.riskScore,
+      verdict: parsed.verdict,
+      reasons: parsed.reasons || [],
+      safePercent: parsed.safePercent || 0,
+      riskPercent: parsed.riskPercent || 0,
+      signals: {
+        suspiciousLanguage: parsed.signals?.suspiciousLanguage || 0,
+        paymentRequest: parsed.signals?.paymentRequest || 0,
+        contactRisk: parsed.signals?.contactRisk || 0,
+        companyTrust: parsed.signals?.companyTrust || 0
+      }
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Analysis completed",
       analysis: history
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("OpenRouter analysis error:", error);
+    return res.status(500).json({
+      message: "Failed to analyze with OpenRouter",
+      error: error.message
+    });
   }
 };
