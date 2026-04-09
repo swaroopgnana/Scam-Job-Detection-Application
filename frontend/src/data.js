@@ -48,10 +48,12 @@ export const featureCards = [
 
 export const subscriptionPlans = [
   {
+    planId: "Free",
     name: "Starter",
     price: "Free",
     audience: "For individual job seekers getting started",
     badge: "Popular for students",
+    description: "Explore JobLens without a payment setup.",
     features: [
       "Basic job scam checks",
       "Risk score and clear reasons",
@@ -60,10 +62,12 @@ export const subscriptionPlans = [
     ]
   },
   {
+    planId: "Pro",
     name: "Pro",
-    price: "$12/mo",
+    price: "Rs. 12/mo",
     audience: "For active applicants and freelancers",
     badge: "Best value",
+    description: "Unlimited personal usage with a faster review flow.",
     features: [
       "Unlimited job analyses",
       "Priority scoring and richer evidence cards",
@@ -72,10 +76,12 @@ export const subscriptionPlans = [
     ]
   },
   {
+    planId: "Enterprise",
     name: "Team",
-    price: "$39/mo",
+    price: "Rs. 39/mo",
     audience: "For bootcamps, placement cells, and hiring support teams",
     badge: "For organizations",
+    description: "Shared workflows for teams supporting many applicants.",
     features: [
       "Shared review workflows",
       "Team-wide suspicious listing library",

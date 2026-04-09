@@ -172,10 +172,10 @@ textarea {
 }
 
 .sidebar {
-  width: 255px;
-  min-width: 255px;
+  width: 220px;
+  min-width: 220px;
   background: var(--sidebar-bg);
-  padding: 24px 16px;
+  padding: 20px 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -184,25 +184,26 @@ textarea {
 }
 
 .logo {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: bold;
   color: var(--logo);
-  margin-bottom: 30px;
+  margin-bottom: 22px;
 }
 
 .nav-menu {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 .nav-item {
-  padding: 14px 16px;
-  border-radius: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
   color: var(--text-primary);
+  font-size: 0.98rem;
 }
 
 .nav-item:hover {
@@ -217,8 +218,8 @@ textarea {
 .logout-btn {
   background: var(--danger);
   color: white;
-  padding: 16px;
-  border-radius: 14px;
+  padding: 14px;
+  border-radius: 12px;
   cursor: pointer;
   border: none;
   font-weight: 600;
@@ -230,22 +231,22 @@ textarea {
 
 .main-content {
   flex: 1;
-  padding: 22px 28px;
+  padding: 18px 22px;
   min-width: 0;
 }
 
 .main-title {
   color: var(--heading);
-  font-size: 3rem;
-  margin-bottom: 22px;
-  line-height: 1.05;
+  font-size: 2.4rem;
+  margin-bottom: 14px;
+  line-height: 1.08;
 }
 
 .analyze-box, .chart-card, .content-card, .history-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 24px;
+  border-radius: 18px;
+  padding: 20px;
   box-shadow: var(--shadow-lg);
 }
 
@@ -270,7 +271,7 @@ textarea {
 }
 
 .page-hero {
-  margin-bottom: 28px;
+  margin-bottom: 18px;
 }
 
 .eyebrow {
@@ -283,9 +284,10 @@ textarea {
 }
 
 .page-lead {
-  max-width: 840px;
+  max-width: 780px;
   color: var(--text-secondary);
-  line-height: 1.7;
+  line-height: 1.55;
+  font-size: 0.98rem;
 }
 
 .analytics-grid {
@@ -318,12 +320,12 @@ textarea {
 .pricing-grid,
 .evidence-grid {
   display: grid;
-  gap: 22px;
+  gap: 16px;
 }
 
 .info-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 .feature-grid {
@@ -332,7 +334,7 @@ textarea {
 
 .pricing-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 .evidence-grid {
@@ -396,7 +398,7 @@ textarea {
 .sidebar-theme-toggle {
   width: 100%;
   justify-content: center;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 
 .auth-theme-toggle {
@@ -406,7 +408,7 @@ textarea {
 }
 
 .page-section {
-  margin-top: 28px;
+  margin-top: 20px;
 }
 
 .two-column-copy {
@@ -426,7 +428,7 @@ textarea {
 .pricing-card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .plan-badge,
@@ -436,21 +438,96 @@ textarea {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 7px 12px;
   background: var(--nav-hover);
   color: var(--heading);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
 }
 
 .plan-price {
-  font-size: 2.4rem;
+  font-size: 2rem;
   font-weight: 800;
   color: var(--text-primary);
 }
 
+.subscription-current-plan {
+  margin-top: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subscription-alert {
+  margin-bottom: 1.5rem;
+}
+
+.subscription-alert p {
+  margin: 0;
+}
+
+.subscription-alert-success {
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.subscription-alert-error {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.subscription-alert-info {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
 .plan-list {
   flex: 1;
+  margin-top: 4px;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.pricing-card h2,
+.info-card h2 {
+  font-size: 1.05rem;
+}
+
+.pricing-card .gradient-btn {
+  padding: 12px;
+}
+
+.plan-audience,
+.info-card p {
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+@media (min-width: 1200px) {
+  .main-content {
+    padding: 16px 20px;
+  }
+
+  .page-hero {
+    margin-bottom: 14px;
+  }
+
+  .main-title {
+    font-size: 2.15rem;
+    max-width: 1100px;
+  }
+
+  .pricing-card {
+    min-height: 0;
+  }
+
+  .pricing-card .gradient-btn {
+    margin-top: 4px;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .subscription-alert {
+    margin-bottom: 1rem;
+  }
 }
 
 .score-row,
@@ -514,6 +591,94 @@ textarea {
   color: var(--text-secondary);
 }
 
+@media (min-width: 1200px) {
+  .analyze-page .page-hero {
+    margin-bottom: 14px;
+  }
+
+  .analyze-page .main-title {
+    font-size: 2.05rem;
+    margin-bottom: 10px;
+    max-width: 860px;
+  }
+
+  .analyze-page .page-lead {
+    max-width: 760px;
+    font-size: 0.95rem;
+  }
+
+  .analyze-page .analyze-box {
+    margin-bottom: 18px;
+    padding: 18px;
+  }
+
+  .analyze-page .analyze-box textarea {
+    height: 132px;
+    margin-bottom: 14px;
+    padding: 14px 16px;
+  }
+
+  .analyze-page .analytics-grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 16px;
+  }
+
+  .analyze-page .chart-card {
+    padding: 18px;
+  }
+
+  .analyze-page .chart-card h2 {
+    font-size: 1.08rem;
+  }
+
+  .analyze-page .chart-wrap {
+    height: 240px;
+  }
+
+  .analyze-page .score-row {
+    margin: 12px 0 8px;
+  }
+
+  .analyze-page .score-row h3 {
+    font-size: 1.4rem;
+  }
+
+  .analyze-page .score-pill {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+
+  .analyze-page .analysis-summary,
+  .analyze-page .reason-list,
+  .analyze-page .section-heading p,
+  .analyze-page .evidence-card p,
+  .analyze-page .excerpt-box {
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .analyze-page .reason-list {
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .analyze-page .evidence-section {
+    margin-top: 20px;
+  }
+
+  .analyze-page .section-heading {
+    margin-bottom: 14px;
+  }
+
+  .analyze-page .evidence-grid {
+    gap: 14px;
+  }
+
+  .analyze-page .evidence-card {
+    padding: 18px;
+  }
+}
+
 @media (max-width: 992px) {
   .dashboard-container {
     display: block;
@@ -563,6 +728,26 @@ textarea {
 
   .main-content {
     padding-top: 82px;
+  }
+
+  .analyze-page .page-hero {
+    margin-bottom: 16px;
+  }
+
+  .analyze-page .analyze-box {
+    margin-bottom: 18px;
+  }
+
+  .analyze-page .analyze-box textarea {
+    height: 160px;
+  }
+
+  .analyze-page .chart-wrap {
+    height: 280px;
+  }
+
+  .analyze-page .evidence-section {
+    margin-top: 20px;
   }
 
   .analytics-grid,
@@ -641,5 +826,148 @@ textarea {
   .content-card,
   .history-card {
     padding: 20px;
+  }
+
+  .analyze-page .page-hero {
+    margin-bottom: 14px;
+  }
+
+  .analyze-page .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.13em;
+    margin-bottom: 8px;
+  }
+
+  .analyze-page .main-title {
+    font-size: 1.8rem;
+    line-height: 1.12;
+    margin-bottom: 10px;
+  }
+
+  .analyze-page .page-lead {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .analyze-page .analyze-box {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .analyze-page .analyze-box textarea {
+    height: 140px;
+    padding: 14px;
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+  }
+
+  .analyze-page .chart-card {
+    padding: 16px;
+  }
+
+  .analyze-page .chart-card h2 {
+    font-size: 1rem;
+  }
+
+  .analyze-page .chart-wrap {
+    height: 220px;
+  }
+
+  .analyze-page .score-row {
+    gap: 10px;
+    margin: 12px 0 8px;
+  }
+
+  .analyze-page .score-row h3 {
+    font-size: 1.35rem;
+  }
+
+  .analyze-page .score-verdict {
+    margin-top: 4px;
+    font-size: 0.92rem;
+  }
+
+  .analyze-page .score-pill,
+  .analyze-page .impact-badge {
+    font-size: 0.74rem;
+    padding: 6px 10px;
+  }
+
+  .analyze-page .analysis-summary,
+  .analyze-page .reason-list,
+  .analyze-page .section-heading p,
+  .analyze-page .evidence-card p,
+  .analyze-page .excerpt-box,
+  .analyze-page .empty-card {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .analyze-page .reason-list {
+    gap: 8px;
+    padding-left: 18px;
+  }
+
+  .analyze-page .evidence-section {
+    margin-top: 16px;
+  }
+
+  .analyze-page .section-heading {
+    margin-bottom: 12px;
+  }
+
+  .analyze-page .section-heading h2 {
+    font-size: 1.1rem;
+  }
+
+  .analyze-page .evidence-grid {
+    gap: 12px;
+  }
+
+  .analyze-page .evidence-card {
+    padding: 16px;
+  }
+
+  .analyze-page .evidence-card h3 {
+    font-size: 1rem;
+  }
+
+  .analyze-page .excerpt-box {
+    padding: 12px 14px;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .main-content {
+    padding: 16px;
+    padding-top: 76px;
+  }
+
+  .mobile-menu-btn {
+    top: 12px;
+    left: 12px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .analyze-page .main-title {
+    font-size: 1.6rem;
+  }
+
+  .analyze-page .analyze-box,
+  .analyze-page .chart-card,
+  .analyze-page .evidence-card,
+  .analyze-page .empty-card {
+    padding: 14px;
+  }
+
+  .analyze-page .analyze-box textarea {
+    height: 132px;
+    padding: 12px;
+  }
+
+  .analyze-page .chart-wrap {
+    height: 200px;
   }
 }

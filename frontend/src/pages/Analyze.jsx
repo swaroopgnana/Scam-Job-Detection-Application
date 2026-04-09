@@ -131,6 +131,7 @@ const Analyze = () => {
 
   return (
     <Layout>
+      <div className="analyze-page">
       <section className="page-hero">
         <p className="eyebrow">Analyze Listings</p>
         <h1 className="main-title">Review a job post before you trust it.</h1>
@@ -209,6 +210,7 @@ const Analyze = () => {
           )}
         </div>
       </section>
+      </div>
     </Layout>
   );
 };
