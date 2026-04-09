@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # JobLens
 
 JobLens is a full-stack web application for analyzing job listings and helping users spot potential scam signals before applying. It combines AI-assisted risk scoring, saved analysis history, authentication, plan management, and Razorpay subscription checkout in one platform.
@@ -239,3 +240,6 @@ The frontend production build has been verified successfully during setup update
 ## Author
 
 Built for a job scam detection and subscription-enabled SaaS workflow using React, Node.js, MongoDB, AI analysis, and Razorpay.
+=======
+# Scam-Job-Detection-Application
+>>>>>>> c4a05f0977101eec422f3da1b7ac3ffdec1ec7c6

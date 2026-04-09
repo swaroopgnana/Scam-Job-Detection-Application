@@ -11,8 +11,26 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const defaultAllowedOrigins = [
+  "http://localhost:5173",
+  "https://scam-job-detection-application-5lc2.vercel.app"
+];
+const allowedOrigins = process.env.CLIENT_URLS
+  ? process.env.CLIENT_URLS.split(",").map((origin) => origin.trim()).filter(Boolean)
+  : defaultAllowedOrigins;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS not allowed for this origin"));
+    },
+    credentials: true
+  })
+);
 app.use(express.json());
 
 app.get("/", (req, res) => {
