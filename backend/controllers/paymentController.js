@@ -1,53 +1,77 @@
 import crypto from "crypto";
-import axios from "axios";
-import jwt from "jsonwebtoken";
+import { createRequire } from "module";
 import User from "../models/User.js";
-import { getSubscriptionPlan } from "../config/subscriptionPlans.js";
 
-const buildReceipt = (userId, planId) => `sub_${planId.toLowerCase()}_${String(userId).slice(-8)}_${Date.now()}`;
+const require = createRequire(import.meta.url);
+
+const planCatalog = {
+  Pro: {
+    amount: 1200,
+    currency: "INR",
+    description: "Unlimited personal usage with a faster review flow."
+  },
+  Enterprise: {
+    amount: 3900,
+    currency: "INR",
+    description: "Shared workflows for teams supporting many applicants."
+  }
+};
+
+const getRazorpayClient = () => {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!keyId || !keySecret) {
+    return null;
+  }
+
+  let Razorpay;
+
+  try {
+    Razorpay = require("razorpay");
+  } catch (error) {
+    console.error("Razorpay SDK is not available:", error.message);
+    return null;
+  }
+
+  return new Razorpay({
+    key_id: keyId,
+    key_secret: keySecret
+  });
+};
 
 export const createOrder = async (req, res) => {
   try {
     const { planId } = req.body;
-    const plan = getSubscriptionPlan(planId);
+    const plan = planCatalog[planId];
 
     if (!plan) {
       return res.status(400).json({ message: "Invalid subscription plan selected." });
     }
 
-    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-      return res.status(500).json({ message: "Razorpay is not configured on the server." });
+    const razorpay = getRazorpayClient();
+    if (!razorpay) {
+      return res.status(503).json({ message: "Payments are not configured on the backend yet." });
     }
 
-    const response = await axios.post(
-      "https://api.razorpay.com/v1/orders",
-      {
-        amount: plan.amount,
-        currency: plan.currency,
-        receipt: buildReceipt(req.user.id, plan.id),
-        notes: {
-          userId: req.user.id,
-          planId: plan.id,
-          planName: plan.name
-        }
-      },
-      {
-        auth: {
-          username: process.env.RAZORPAY_KEY_ID,
-          password: process.env.RAZORPAY_KEY_SECRET
-        }
-      }
-    );
+    const order = await razorpay.orders.create({
+      amount: plan.amount,
+      currency: plan.currency,
+      receipt: `receipt_${req.user.id}_${Date.now()}`
+    });
 
-    res.status(201).json({
+    return res.status(201).json({
       key: process.env.RAZORPAY_KEY_ID,
-      order: response.data,
-      plan
+      order,
+      plan: {
+        id: planId,
+        description: plan.description
+      }
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Unable to create Razorpay order.",
-      error: error.response?.data?.error?.description || error.message
+    return res.status(500).json({
+      message: "Failed to create payment order.",
+      error: error.message
     });
   }
 };
@@ -55,14 +79,18 @@ export const createOrder = async (req, res) => {
 export const verifyPayment = async (req, res) => {
   try {
     const { planId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    const plan = getSubscriptionPlan(planId);
+    const plan = planCatalog[planId];
 
     if (!plan) {
       return res.status(400).json({ message: "Invalid subscription plan selected." });
     }
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return res.status(400).json({ message: "Missing Razorpay payment details." });
+      return res.status(400).json({ message: "Missing payment verification details." });
+    }
+
+    if (!process.env.RAZORPAY_KEY_SECRET) {
+      return res.status(503).json({ message: "Payments are not configured on the backend yet." });
     }
 
     const expectedSignature = crypto
@@ -71,19 +99,33 @@ export const verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({ message: "Payment signature verification failed." });
+      return res.status(400).json({ message: "Invalid payment signature." });
     }
 
-    const user = await User.findByIdAndUpdate(req.user.id, { plan: plan.id }, { new: true }).select("-password");
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { plan: planId },
+      { new: true }
+    ).select("-password");
 
-    res.status(200).json({
-      message: `${plan.name} subscription activated successfully.`,
-      token: jwt.sign({ id: user._id, name: user.name, email: user.email, plan: user.plan }, process.env.JWT_SECRET, {
-        expiresIn: "7d"
-      }),
-      user
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json({
+      message: `${planId === "Enterprise" ? "Team" : planId} plan activated successfully.`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        plan: user.plan
+      },
+      token: req.headers.authorization?.split(" ")[1] || ""
     });
   } catch (error) {
-    res.status(500).json({ message: "Payment verification failed.", error: error.message });
+    return res.status(500).json({
+      message: "Failed to verify payment.",
+      error: error.message
+    });
   }
 };
