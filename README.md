@@ -1,0 +1,1 @@
+# Scam-Job-Detection-Application
