@@ -14,7 +14,7 @@ const client = new OpenAI({
   apiKey,
   baseURL: "https://openrouter.ai/api/v1",
   defaultHeaders: {
-    "HTTP-Referer": "http://localhost:5000",
+    "HTTP-Referer": "https://scam-job-detection-application-5lc2.vercel.app",
     "X-Title": "Job Scam Detector"
   }
 });

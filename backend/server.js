@@ -12,7 +12,6 @@ connectDB();
 
 const app = express();
 const defaultAllowedOrigins = [
-  "http://localhost:5173",
   "https://scam-job-detection-application-5lc2.vercel.app"
 ];
 const allowedOrigins = process.env.CLIENT_URLS
