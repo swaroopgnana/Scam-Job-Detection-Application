@@ -1,27 +1,61 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import History from "../models/History.js";
 import OpenAI from "openai";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import analyzeWithGemini from "../utils/gemini.js";
 
-const apiKey = process.env.OPENROUTER_API_KEY;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, "../.env");
 
-if (!apiKey) {
-  console.error("OPENROUTER_API_KEY is missing. Check your backend .env file.");
-}
-
-const client = new OpenAI({
-  apiKey,
-  baseURL: "https://openrouter.ai/api/v1",
-  defaultHeaders: {
-    "HTTP-Referer": "https://scam-job-detection-application-5lc2.vercel.app",
-    "X-Title": "Job Scam Detector"
+const normalizeEnvValue = (value) => {
+  if (typeof value !== "string") {
+    return "";
   }
-});
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  return trimmed.replace(/^['"]|['"]$/g, "");
+};
+
+const getOpenRouterApiKey = () => {
+  let apiKey = normalizeEnvValue(process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API_KEY);
+
+  if (!apiKey) {
+    dotenv.config({ path: envPath });
+    apiKey = normalizeEnvValue(process.env.OPENROUTER_API_KEY || process.env.OPEN_ROUTER_API_KEY);
+  }
+
+  return apiKey;
+};
+
+const createOpenRouterClient = (apiKey) =>
+  new OpenAI({
+    apiKey,
+    baseURL: "https://openrouter.ai/api/v1",
+    defaultHeaders: {
+      "HTTP-Referer": process.env.PUBLIC_APP_URL || "https://scam-job-detection-application-by8rvuhba.vercel.app",
+      "X-Title": "Job Scam Detector"
+    }
+  });
 
 function extractJson(text) {
   const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
-  return JSON.parse(cleaned);
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const objectLikeMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (!objectLikeMatch) {
+      throw new Error("Model response did not contain valid JSON.");
+    }
+
+    return JSON.parse(objectLikeMatch[0]);
+  }
 }
 
 function clampScore(value, fallback = 0) {
@@ -86,13 +120,48 @@ function normalizeEvidence(evidence) {
     .slice(0, 4);
 }
 
+function normalizeAnalysisPayload(parsed) {
+  const signals = {
+    suspiciousLanguage: clampScore(parsed?.signals?.suspiciousLanguage),
+    paymentRequest: clampScore(parsed?.signals?.paymentRequest),
+    contactRisk: clampScore(parsed?.signals?.contactRisk),
+    companyTrust: clampScore(parsed?.signals?.companyTrust)
+  };
+
+  const riskScore = clampScore(parsed?.riskScore);
+  const safePercent = clampScore(parsed?.safePercent, 100 - riskScore);
+  const riskPercent = clampScore(parsed?.riskPercent, 100 - safePercent);
+  const summary = typeof parsed?.summary === "string" ? parsed.summary.trim() : "";
+  const reasons = normalizeReasons(parsed?.reasons, summary, signals);
+  const evidence = normalizeEvidence(parsed?.evidence);
+
+  let verdict = typeof parsed?.verdict === "string" ? parsed.verdict.trim() : "";
+  if (!verdict) {
+    if (riskScore >= 70) verdict = "High Risk";
+    else if (riskScore >= 40) verdict = "Medium Risk";
+    else verdict = "Low Risk";
+  }
+
+  return {
+    riskScore,
+    verdict,
+    summary,
+    reasons,
+    safePercent,
+    riskPercent,
+    signals,
+    evidence
+  };
+}
+
 export const analyzeJob = async (req, res) => {
   try {
     const { jobText } = req.body;
+    const apiKey = getOpenRouterApiKey();
 
     if (!apiKey) {
       return res.status(500).json({
-        message: "OPENROUTER_API_KEY is missing in backend .env"
+        message: "OPENROUTER_API_KEY is missing in backend/.env"
       });
     }
 
@@ -146,50 +215,67 @@ Job Description:
 ${jobText}
 `;
 
-    const completion = await client.chat.completions.create({
-      model: "openai/gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are a job scam detection assistant. Return only valid JSON."
+    const client = createOpenRouterClient(apiKey);
+
+    let normalized;
+
+    try {
+      const completion = await client.chat.completions.create({
+        model: "openai/gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: "You are a job scam detection assistant. Return only valid JSON."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.2
+      });
+
+      const text = completion.choices?.[0]?.message?.content || "";
+      const parsed = extractJson(text);
+      normalized = normalizeAnalysisPayload(parsed);
+    } catch (providerError) {
+      console.error("OpenRouter response handling failed, using fallback analysis:", providerError.message);
+      const fallback = await analyzeWithGemini(jobText);
+      normalized = normalizeAnalysisPayload({
+        riskScore: fallback.riskScore,
+        verdict: fallback.verdict,
+        summary: fallback.reasons?.[0] || "",
+        reasons: fallback.reasons,
+        safePercent: 100 - clampScore(fallback.riskScore),
+        riskPercent: clampScore(fallback.riskScore),
+        signals: {
+          suspiciousLanguage: clampScore(fallback.riskScore),
+          paymentRequest: clampScore(Math.round(fallback.riskScore * 0.7)),
+          contactRisk: clampScore(Math.round(fallback.riskScore * 0.6)),
+          companyTrust: clampScore(100 - fallback.riskScore)
         },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.2
-    });
+        evidence: []
+      });
+    }
 
-    const text = completion.choices?.[0]?.message?.content || "";
-    const parsed = extractJson(text);
-    const signals = {
-      suspiciousLanguage: clampScore(parsed.signals?.suspiciousLanguage),
-      paymentRequest: clampScore(parsed.signals?.paymentRequest),
-      contactRisk: clampScore(parsed.signals?.contactRisk),
-      companyTrust: clampScore(parsed.signals?.companyTrust)
-    };
-    const riskScore = clampScore(parsed.riskScore);
-    const riskPercent = clampScore(parsed.riskPercent, riskScore);
-    const safePercent = clampScore(parsed.safePercent, 100 - riskPercent);
-    const summary = typeof parsed.summary === "string"
-      ? parsed.summary.trim()
-      : "";
-    const reasons = normalizeReasons(parsed.reasons, summary, signals);
-    const evidence = normalizeEvidence(parsed.evidence);
-
-    const history = await History.create({
+    let history;
+    try {
+      history = await History.create({
       user: req.user.id,
       jobText,
-      riskScore,
-      verdict: parsed.verdict,
-      summary,
-      reasons,
-      safePercent,
-      riskPercent,
-      signals,
-      evidence
+      ...normalized
     });
+    } catch (historyError) {
+      console.error("History save failed:", historyError.message);
+      history = {
+        ...normalized,
+        _id: null,
+        user: req.user.id,
+        jobText,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    }
 
     return res.status(200).json({
       message: "Analysis completed",
