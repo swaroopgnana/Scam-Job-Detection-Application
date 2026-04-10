@@ -3,10 +3,22 @@ import axios from "axios";
 const isLocalHost = typeof window !== "undefined"
   && ["localhost", "127.0.0.1"].includes(window.location.hostname);
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-  || (isLocalHost
-    ? "http://localhost:5001/api"
-    : "https://scam-job-detection-application-1.onrender.com/api");
+const normalizeBaseUrl = (value) => value?.trim().replace(/\/+$/, "");
+
+const getApiBaseUrl = () => {
+  const envBaseUrl = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
+  if (envBaseUrl) {
+    return envBaseUrl;
+  }
+
+  if (isLocalHost) {
+    return "http://localhost:5000/api";
+  }
+
+  return "https://scam-job-detection-application-2.onrender.com/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const API = axios.create({
   baseURL: API_BASE_URL
